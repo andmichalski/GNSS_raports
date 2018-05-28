@@ -1,0 +1,162 @@
+Sub kopiuj_tabele()
+    Dim oExcel As Object
+    Dim oWB As Object
+    Dim sciezka_folder As String
+    Dim iNumTables As Integer
+    Dim ilpomiar As Integer
+    Dim ilpkt As Integer
+    Dim I As Integer
+
+    
+
+'Pobieramy scie¿kê pliku
+    sciezka_folder = ActiveDocument.Path
+    
+'Ustawiamy œcie¿ke do pliku
+    Set oExcel = New Excel.Application
+    Set oWB = oExcel.Workbooks.Open(sciezka_folder + "\all.xlsb")
+    oExcel.Visible = True
+    
+    
+    '====Tutaj trzeba zmieniæ zêby móc wpisywaæ==========
+    'Podajemy iloœæ pomiarów
+    'ilpomiar = InputBox("Podaj iloœæ pomiarów")
+    'ilpomiar = ilpomiar+1
+    ilpomiar = 6
+    'Podajemy iloœæ punktów
+    'ilpkt = InputBox("Podaj iloœæ punktów")
+    'ilpkt = ilpkt + 1
+    ilpkt = 7
+    
+    
+    'Kopiujemy z excela
+    'oWB.Sheets("pomiary").Range("A1:G8").copy
+    Workbooks("all.xlsb").Sheets("pomiary").Activate
+        ActiveSheet.Range(Cells(1, 1), Cells(ilpkt + 1, ilpomiar + 1)).copy
+    
+    'Piszemy tekst
+    Selection.TypeText Text:=vbNewLine + "Tabela pomiarów wykonanych na poszczególnych punktach w sesjach pomiarowych"
+    Selection.Font.Bold = True
+    Selection.Font.Name = "Times New Roman"
+    Selection.Font.Size = 12
+    
+    
+    Selection.TypeText Text:=vbNewLine + vbNewLine
+    
+    Selection.InsertParagraph
+    Selection.InsertParagraph
+    
+    'Wklejamy do worda
+    Selection.PasteExcelTable _
+        LinkedToExcel:=False, _
+        WordFormatting:=False, _
+        RTF:=True
+    Selection.Font.Name = "Times New Roman"
+    Selection.Font.Size = 12
+    Selection.ParagraphFormat.Alignment = wdAlignParagraphCenter
+    
+    'Zamykamy excela
+    oWB.Close
+    
+    'Sprawdzamy ile mamy tabeli
+    iNumTables = ActiveDocument.Tables.Count
+        
+    'Formatujemy tabele
+    '==================
+    Set myTable = ActiveDocument.Tables(iNumTables)
+        myTable.Range.ParagraphFormat.Alignment = wdAlignParagraphCenter
+        
+    
+    With myTable.Borders
+        .InsideLineStyle = wdLineStyleSingle
+        .OutsideLineStyle = wdLineStyleSingle
+    End With
+    
+    'Ustawiamy bolda dla pierwszej lini
+    myTable.Rows(1).Range.Font.Bold = True
+    myTable.AutoFitBehavior wdAutoFitWindow
+    '==================
+    
+    
+
+    
+    Dim naz_ark As String
+    Dim data_pomiar As String
+    
+    
+    'Tworzymy pêtle
+    For I = 1 To ilpomiar
+        
+        'Przypisujemy nazwê pliku do arkusza
+        naz_ark = Workbooks("all.xlsb").Sheets(I).Name
+        
+        'Szukamy daty pomiaru
+        data_pomiar = Mid(naz_ark, 7, 2) + "." + Mid(naz_ark, 5, 2) + ".20" + Mid(naz_ark, 3, 2)
+        
+        'Piszemy tekst
+        Selection.TypeText Text:=vbNewLine + "Pomiar " + Str(I) + vbNewLine + "Rodzaj wykonywanych pomiarów - metoda statyczna (RTK GPS + GLONASS)" + vbNewLine + "Data pomiaru: " + data_pomiar + vbNewLine + "Wykaz wspó³rzêdnych w uk³adzie PUWG 2000/21" + vbNewLine + vbNewLine
+        Selection.Font.Bold = True
+        Selection.Font.Name = "Times New Roman"
+        Selection.Font.Size = 12
+        
+        
+        'Kopiujemy z excela
+        Workbooks("all.xlsb").Sheets(I).Activate
+            ActiveSheet.Range(Cells(1, 1), Cells(ilpkt + 1, 5)).copy
+        
+        'Wklejamy do worda
+        Selection.PasteExcelTable _
+            LinkedToExcel:=False, _
+            WordFormatting:=False, _
+            RTF:=True
+        Selection.Font.Name = "Times New Roman"
+        Selection.Font.Size = 12
+        Selection.ParagraphFormat.Alignment = wdAlignParagraphCenter
+        
+        
+        'Sprawdzamy ile mamy tabeli
+        iNumTables = ActiveDocument.Tables.Count
+            
+        'Formatujemy tabele
+        '==================
+        Set myTable = ActiveDocument.Tables(iNumTables)
+            myTable.Range.ParagraphFormat.Alignment = wdAlignParagraphCenter
+            
+        
+        With myTable.Borders
+            .InsideLineStyle = wdLineStyleSingle
+            .OutsideLineStyle = wdLineStyleSingle
+        End With
+        
+        'Ustawiamy bolda dla pierwszej lini
+        myTable.Rows(1).Range.Font.Bold = True
+        myTable.AutoFitBehavior wdAutoFitWindow
+        '==================
+        
+        
+        
+    Next I
+    
+    
+
+
+
+
+
+
+'## Otwieramy excela:
+'Set Exc_F = Workbooks.Open(sciezka_folder + "all.xls")
+'Set y = Workbooks.Open(" path to destination book ")
+
+'Now, copy what you want from x:
+'x.Sheets("name of copying sheet").Range("A1").copy
+
+'Now, paste to y worksheet:
+'y.Sheets("sheetname").Range("A1").PasteSpecial
+
+'Close x:
+'x.Close
+End Sub
+
+
+
